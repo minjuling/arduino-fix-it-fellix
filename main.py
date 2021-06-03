@@ -1,3 +1,9 @@
+#background(240x240)
+#strawberry(40x45)
+#raspberry(80x70)
+#rock(20x20)
+#window(12x20)
+
 import time
 import random
 from colorsys import hsv_to_rgb
@@ -76,8 +82,8 @@ game = Game()
 berry = Strawberry()
 ras = Raspberry()
 rocks = []
-window_position = []
-widow_list = []
+window_position = [[54,102],[81,102],[113,102],[146,102],[173,102],[54,152],[81,152],[146,152],[173,152],[54,200],[81,200],[146,200],[173,200]]
+windows = utils.windowinit(window_position)
 
 curr_t = time.time()
 
@@ -89,15 +95,13 @@ while True:
     #rock moving
     rocks = utils.rock_moving(rocks)
 
-    #window break
-    #utils.windowinit(window_position)
+    
+    
 
     #rock
     next_t = time.time()
     rocks, curr_t = utils.make_rock(next_t, curr_t, rocks, ras.curr_x,ras.curr_y )
     rocks = utils.rock_delete(rocks)
-
-    
 
     if not button_U.value:  # up pressed
         berry.up()
@@ -116,6 +120,8 @@ while True:
 
     if not button_A.value:  # left pressed
         berry.A()
+        #window break
+        windows = utils.window_check(windows, berry.curr_x, berry.curr_y)
 
     if not button_B.value:  # left pressed
         pass
@@ -123,11 +129,16 @@ while True:
     if utils.rock_check(rocks, berry.curr_x,berry.curr_y):
         utils.gameover(draw, image, disp)
     
+    if windows == 0:
+        game.change_stage(draw, image, disp)
+
+        
     # Display the Image
-    image.paste(game.stage, (0,0))
+    image.paste(game.image, (0,0))
     image.paste(ras.image, (ras.curr_x,ras.curr_y),ras.image)
+    for window in windows:
+        image.paste(window.image, (window.curr_x,window.curr_y), window.image)
     image.paste(berry.image, (berry.curr_x, berry.curr_y),berry.image)
-    
     for rock in rocks:
-        image.paste(rock.image, (rock.curr_x,rock.curr_y), rock.image)
+        image.paste(rock.image, (rock.curr_x,rock.curr_y), rock.image)    
     disp.image(image)

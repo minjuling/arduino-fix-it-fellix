@@ -6,12 +6,13 @@ from window import Window
 from rock import Rock
 
 def windowinit(window_position):
-    breaknum = np.random.randint(0, 10)
+    breaknum = np.random.randint(6, 10)
     breakidx = np.random.randint(0, 10, breaknum)
+    windows = []
     for i in breakidx:
-        window = Window(window_position[i][1], window_position[i][2])
-        window_list.append(window)
-    return window_list
+        window = Window(window_position[i][0], window_position[i][1])
+        windows.append(window)
+    return windows
 
 #make rock every 1sec
 def make_rock(next_t, curr_t, rocks, x, y):
@@ -44,3 +45,13 @@ def gameover(draw, image, disp):
     draw.text((30, 110), "GAME OVER", font=fnt, fill=(255,0,0))
     disp.image(image)
     quit()
+
+def window_check(windows,x,y):
+    if len(windows) ==0:
+        return 0
+    for window in windows:
+        print(window.curr_x,x,window.curr_y,y)
+        if abs((window.curr_x+5) - (x+20))<10 and abs((window.curr_y+10) - (y+20))<5:
+            window.clean()
+            windows = [window for window in windows if window.check <5]
+    return windows        
