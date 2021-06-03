@@ -41,6 +41,11 @@ from digitalio import DigitalInOut, Direction
 from PIL import Image, ImageDraw, ImageFont
 import adafruit_rgb_display.st7789 as st7789
 
+from strawberry import Strawberry
+from rock import Rock
+from raspberry import Raspberry
+from game import Game
+
 # Create the display
 cs_pin = DigitalInOut(board.CE0)
 dc_pin = DigitalInOut(board.D25)
@@ -81,20 +86,6 @@ button_D.direction = Direction.INPUT
 button_C = DigitalInOut(board.D4)
 button_C.direction = Direction.INPUT
 
-#image
-background = Image.open('Img/background1.png')
-ras = Image.open('Img/ras.png')
-st1 = Image.open('Img/st1.png')
-st2 = Image.open('Img/st2.png')
-st3 = Image.open('Img/st3.png')
-st4 = Image.open('Img/st4.png')
-st5 = Image.open('Img/st5.png')
-wd1 = Image.open('Img/window1-1.png')
-wd2 = Image.open('Img/window2-1.png')
-wd3 = Image.open('Img/window3-1.png')
-wd4 = Image.open('Img/window4-1.png')
-wd5 = Image.open('Img/window5-1.png')
-
 # Turn on the Backlight
 backlight = DigitalInOut(board.D26)
 backlight.switch_to_output()
@@ -110,87 +101,67 @@ image = Image.new("RGBA", (width, height))
 draw = ImageDraw.Draw(image)
 
 # Clear display.
-draw.rectangle((0, 0, width, height), outline=0, fill=(255, 0, 0))
+draw.rectangle((0, 0, width, height), outline=0, fill=0)
 disp.image(image)
 
-st_x = 63
-st_y = 30
-ras_x = 0
-state = st1
-check_x = random.randint(-60, 50)
-#fnt = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
-image.paste(state,(st_x,st_y))
-    
+#instance
+game = Game()
+berry = Strawberry()
+ras = Raspberry()
+rock_list = []
 
+curr_t = time.time()
 
 while True:
-    image.paste(background, (0,0))
-    
-    if abs(ras_x-check_x)<=11:
-        check_x = random.randint(-60, 50)
-    elif ras_x>check_x:
-        ras_x -= 10
-    elif ras_x<check_x:
-        ras_x += 10
-    print(ras_x, check_x)
-    image.paste(ras, (ras_x,-10),ras)
-    
-    image.paste(state, (st_x,st_y),state) 
+
+    ras.moving()
+
+    next_t = time.time()
+
+    if abs(next_t-curr_t)>1:
+        rock = Rock(ras.curr_x, ras.curr_y)
+        rock_list.append(rock)
+        curr_time = time.time()
+
+    for i in range(len(rock_list)):
+        if rock_list[i].moving == 0:
+            del rock_list[i]
+        if rock_list[i].check(berry.curr_x, berry.curr_y) == 1:
+            draw.rectangle((0, 0, width, height), outline=0, fill=0)
+            rcolor = tuple(int(x * 255) for x in hsv_to_rgb(random.random(), 1, 1))
+            draw.text((20, 180), "GAME OVER", font=fnt, fill=rcolor)
+            disp.image(image)
+            quit()
     
     if not button_U.value:  # up pressed
-        if st_y >-100:
-            st_y -= 30
-
-     # Up
+        berry.up()
         
-
     if not button_D.value:  # down pressed
-        if st_y <30:
-            st_y += 30
-        state = st1
- # down
+        berry.down()
         
-
     if not button_L.value:  # left pressed
-        if st_x>-30:
-            st_x -= 10
-        state = st2
- # left
+        berry.left()
         
-
     if not button_R.value:  # right pressed
-        if st_x<163:
-            st_x +=10
-        state = st3
- # right
-
-        
+        berry.right()
 
     if not button_C.value:  # center pressed
         pass
 
-
     if not button_A.value:  # left pressed
-        if state == st2:
-            state = st5
-        else:
-            state = st4
-
-
+        berry.A()
 
     if not button_B.value:  # left pressed
         pass
 
-    # make a random color and print text
-
-#rcolor = tuple(int(x * 255) for x in hsv_to_rgb(random.random(), 1, 1))
-    #draw.text((20, 150), "Hello World", font=fnt, fill=rcolor)
-    #rcolor = tuple(int(x * 255) for x in hsv_to_rgb(random.random(), 1, 1))
-    #draw.text((20, 180), "Hello World", font=fnt, fill=rcolor)
-    #rcolor = tuple(int(x * 255) for x in hsv_to_rgb(random.random(), 1, 1))
-    #draw.text((20, 210), "Hello World", font=fnt, fill=rcolor)
-
     # Display the Image
+    image.paste(game.stage, (0,0))
+    image.paste(ras.image, (ras.curr_x,ras.curr_y),ras.image)
+    image.paste(berry.image, (berry.curr_x, berry.curr_y),berry.image)
+
+    for i in range(len(rock_list)):
+        image.paste(rock_list[i].image, (rock_list[i].curr_x,rock_list[i].curr_y), rock_list[i].image)
+
     disp.image(image)
 
 
