@@ -8,27 +8,27 @@ class Strawberry():
         self.img4 = Image.open('Img/st4.png')
         self.img5 = Image.open('Img/st5.png')
 
-        self.curr_x = 63
-        self.curr_y = 30
+        self.curr_x = 100
+        self.curr_y = 190
 
         self.image = self.img1
     
     def up(self):
-        if self.curr_y>-100:
-            self.curr_y -= 30
+        if self.curr_y>90:
+            self.curr_y -= 10
 
     def down(self):
-        if self.curr_y <30:
+        if self.curr_y <200:
             self.curr_y += 10
         self.image = self.img1
     
     def left(self):
-        if self.curr_x>-30:
+        if self.curr_x>0:
             self.curr_x -= 10
         self.image = self.img2
     
     def right(self):
-        if self.curr_x<163:
+        if self.curr_x<200:
             self.curr_x += 10
         self.image = self.img3
         

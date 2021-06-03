@@ -1,38 +1,3 @@
-
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
-
-# Copyright (c) 2017 Adafruit Industries
-# Author: James DeVito
-# Ported to RGB Display by Melissa LeBlanc-Williams
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-
-# This example is for use on (Linux) computers that are using CPython with
-# Adafruit Blinka to support CircuitPython libraries. CircuitPython does
-# not support PIL/pillow (python imaging library)!
-"""
-This example is for use on (Linux) computers that are using CPython with
-Adafruit Blinka to support CircuitPython libraries. CircuitPython does
-not support PIL/pillow (python imaging library)!
-"""
-
 import time
 import random
 from colorsys import hsv_to_rgb
@@ -45,6 +10,8 @@ from strawberry import Strawberry
 from rock import Rock
 from raspberry import Raspberry
 from game import Game
+from window import Window
+import utils
 
 # Create the display
 cs_pin = DigitalInOut(board.CE0)
@@ -108,31 +75,30 @@ disp.image(image)
 game = Game()
 berry = Strawberry()
 ras = Raspberry()
-rock_list = []
+rocks = []
+window_position = []
+widow_list = []
 
 curr_t = time.time()
 
 while True:
 
+    #raspberry moving
     ras.moving()
 
+    #rock moving
+    rocks = utils.rock_moving(rocks)
+
+    #window break
+    #utils.windowinit(window_position)
+
+    #rock
     next_t = time.time()
+    rocks, curr_t = utils.make_rock(next_t, curr_t, rocks, ras.curr_x,ras.curr_y )
+    rocks = utils.rock_delete(rocks)
 
-    if abs(next_t-curr_t)>1:
-        rock = Rock(ras.curr_x, ras.curr_y)
-        rock_list.append(rock)
-        curr_time = time.time()
-
-    for i in range(len(rock_list)):
-        if rock_list[i].moving == 0:
-            del rock_list[i]
-        if rock_list[i].check(berry.curr_x, berry.curr_y) == 1:
-            draw.rectangle((0, 0, width, height), outline=0, fill=0)
-            rcolor = tuple(int(x * 255) for x in hsv_to_rgb(random.random(), 1, 1))
-            draw.text((20, 180), "GAME OVER", font=fnt, fill=rcolor)
-            disp.image(image)
-            quit()
     
+
     if not button_U.value:  # up pressed
         berry.up()
         
@@ -154,15 +120,14 @@ while True:
     if not button_B.value:  # left pressed
         pass
 
+    if utils.rock_check(rocks, berry.curr_x,berry.curr_y):
+        utils.gameover(draw, image, disp)
+    
     # Display the Image
     image.paste(game.stage, (0,0))
     image.paste(ras.image, (ras.curr_x,ras.curr_y),ras.image)
     image.paste(berry.image, (berry.curr_x, berry.curr_y),berry.image)
-
-    for i in range(len(rock_list)):
-        image.paste(rock_list[i].image, (rock_list[i].curr_x,rock_list[i].curr_y), rock_list[i].image)
-
+    
+    for rock in rocks:
+        image.paste(rock.image, (rock.curr_x,rock.curr_y), rock.image)
     disp.image(image)
-
-
-
