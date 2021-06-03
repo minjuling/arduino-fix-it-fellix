@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 class Strawberry():
     def __init__(self):
+        self.img0 = Image.open('Img/st0.png')
         self.img1 = Image.open('Img/st1.png')
         self.img2 = Image.open('Img/st2.png')
         self.img3 = Image.open('Img/st3.png')

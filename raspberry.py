@@ -3,7 +3,13 @@ import numpy as np
 
 class Raspberry():
     def __init__(self):
-        self.image = Image.open('Img/ras.png')
+        self.ras1 = Image.open('Img/ras.png')
+        self.ras2 = Image.open('Img/end1.png')
+        self.ras3 = Image.open('Img/end2.png')
+        self.ras4 = Image.open('Img/end3.png')
+
+
+        self.image = self.ras1
 
         self.curr_x = 10
         self.curr_y = 10

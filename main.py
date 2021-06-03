@@ -79,13 +79,7 @@ disp.image(image)
 
 #instance
 game = Game()
-berry = Strawberry()
-ras = Raspberry()
-rocks = []
-window_position = [[54,102],[81,102],[113,102],[146,102],[173,102],[54,152],[81,152],[146,152],[173,152],[54,200],[81,200],[146,200],[173,200]]
-windows = utils.windowinit(window_position)
-
-curr_t = time.time()
+berry, ras, window_position, windows, curr_t, rocks = utils.gameinit()
 
 while True:
 
@@ -94,9 +88,6 @@ while True:
 
     #rock moving
     rocks = utils.rock_moving(rocks)
-
-    
-    
 
     #rock
     next_t = time.time()
@@ -132,6 +123,14 @@ while True:
     if windows == 0:
         game.change_stage(draw, image, disp)
 
+        berry, ras, window_position, windows, curr_t, rocks = utils.gameinit()
+        continue
+    elif game.check ==3:
+        utils.ending(berry, ras, draw, game,image, disp)
+        quit()
+    
+    
+    
         
     # Display the Image
     image.paste(game.image, (0,0))
