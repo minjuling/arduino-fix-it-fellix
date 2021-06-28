@@ -34,12 +34,13 @@ class Game():
         
     def change_stage(self,draw, image, disp):
         
-        #change stage number
         self.stagecheck += 1
-        self.image = self.stage[self.stagecheck]
 
-        #if not ending stage, display NEXT STAGE
         if self.stagecheck <3:
+            #change stage number
+            self.image = self.stage[self.stagecheck]
+
+            #display NEXT STAGE
             draw.rectangle((0, 0, disp.width, disp.height), outline=0, fill=0)
             fnt = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 30)
             draw.text((20, 110), "NEXT STAGE", font=fnt, fill=(255,255,255))
