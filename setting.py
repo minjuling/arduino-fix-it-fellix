@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 class Setting():
     def __init__(self):
+        
         # Create the display
         self.cs_pin = DigitalInOut(board.CE0)
         self.dc_pin = DigitalInOut(board.D25)
