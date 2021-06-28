@@ -1,85 +1,16 @@
 #background(240x240)
 #strawberry(40x45)
 #raspberry(80x70)
-#rock(20x20)
+#rocks(20x20)
 #window(12x20)
 
-import time
-import random
-from colorsys import hsv_to_rgb
-import board
-from digitalio import DigitalInOut, Direction
-from PIL import Image, ImageDraw, ImageFont
-import adafruit_rgb_display.st7789 as st7789
-
-from strawberry import Strawberry
-from rock import Rock
-from raspberry import Raspberry
 from game import Game
-from window import Window
-import utils
-
-# Create the display
-cs_pin = DigitalInOut(board.CE0)
-dc_pin = DigitalInOut(board.D25)
-reset_pin = DigitalInOut(board.D24)
-BAUDRATE = 24000000
-
-spi = board.SPI()
-disp = st7789.ST7789(
-    spi,
-    height=240,
-    y_offset=80,
-    rotation=180,
-    cs=cs_pin,
-    dc=dc_pin,
-    rst=reset_pin,
-    baudrate=BAUDRATE,
-)
-
-# Input pins:
-button_A = DigitalInOut(board.D5)
-button_A.direction = Direction.INPUT
-
-button_B = DigitalInOut(board.D6)
-button_B.direction = Direction.INPUT
-
-button_L = DigitalInOut(board.D27)
-button_L.direction = Direction.INPUT
-
-button_R = DigitalInOut(board.D23)
-button_R.direction = Direction.INPUT
-
-button_U = DigitalInOut(board.D17)
-button_U.direction = Direction.INPUT
-
-button_D = DigitalInOut(board.D22)
-button_D.direction = Direction.INPUT
-
-button_C = DigitalInOut(board.D4)
-button_C.direction = Direction.INPUT
-
-# Turn on the Backlight
-backlight = DigitalInOut(board.D26)
-backlight.switch_to_output()
-backlight.value = True
-
-# Create blank image for drawing.
-# Make sure to create image with mode 'RGB' for color.
-width = disp.width
-height = disp.height
-image = Image.new("RGBA", (width, height))
-
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
-
-# Clear display.
-draw.rectangle((0, 0, width, height), outline=0, fill=0)
-disp.image(image)
+from setting import Setting
 
 #instance
 game = Game()
-berry, ras, window_position, windows, curr_t, rocks = utils.gameinit()
+setting = Setting()
+berry, ras, windows, rocks = game.gameinit()
 
 while True:
 
@@ -87,57 +18,59 @@ while True:
     ras.moving()
 
     #rock moving
-    rocks = utils.rock_moving(rocks)
+    rocks.rock_moving()
 
-    #rock
-    next_t = time.time()
-    rocks, curr_t = utils.make_rock(next_t, curr_t, rocks, ras.curr_x,ras.curr_y )
-    rocks = utils.rock_delete(rocks)
+    #rock create every 3 second
+    rocks.create_rock(ras.curr_x,ras.curr_y, game.stagecheck)
+    
+    #rock delete if it hit the floor
+    rocks.rock_delete()
 
-    if not button_U.value:  # up pressed
+    # up pressed, berry up
+    if not setting.button_U.value:  
         berry.up()
-        
-    if not button_D.value:  # down pressed
+    
+    # down pressed, berry down
+    if not setting.button_D.value: 
         berry.down()
         
-    if not button_L.value:  # left pressed
+    # left pressed, berry left
+    if not setting.button_L.value:
         berry.left()
-        
-    if not button_R.value:  # right pressed
+    
+    # right pressed, berry right
+    if not setting.button_R.value:
         berry.right()
 
-    if not button_C.value:  # center pressed
-        pass
-
-    if not button_A.value:  # left pressed
+    # A pressed, fix window
+    if not setting.button_A.value:  
         berry.A()
-        #window break
-        windows = utils.window_check(windows, berry.curr_x, berry.curr_y)
+        windows.window_check(berry.curr_x, berry.curr_y) #window fix check
 
-    if not button_B.value:  # left pressed
-        pass
-
-    if utils.rock_check(rocks, berry.curr_x,berry.curr_y):
-        utils.gameover(draw, image, disp)
+    #berry hit rock, game over
+    if rocks.rock_check(berry.curr_x,berry.curr_y):
+        game.gameover(setting.draw, setting.image, setting.disp)
     
-    if windows == 0:
-        game.change_stage(draw, image, disp)
-
-        berry, ras, window_position, windows, curr_t, rocks = utils.gameinit()
+    #if every window fix, next stage
+    if len(windows.list) == 0:
+        game.change_stage(setting.draw, setting.image, setting.disp)
+        berry, ras, windows, rocks = game.gameinit()
         continue
-    elif game.check ==3:
-        utils.ending(berry, ras, draw, game,image, disp)
+    #else if last stage, ending
+    elif game.stagecheck ==3:
+        game.ending(berry, ras, setting.draw, setting.image, setting.disp)
         quit()
-    
-    
-    
         
     # Display the Image
-    image.paste(game.image, (0,0))
-    image.paste(ras.image, (ras.curr_x,ras.curr_y),ras.image)
-    for window in windows:
-        image.paste(window.image, (window.curr_x,window.curr_y), window.image)
-    image.paste(berry.image, (berry.curr_x, berry.curr_y),berry.image)
-    for rock in rocks:
-        image.paste(rock.image, (rock.curr_x,rock.curr_y), rock.image)    
-    disp.image(image)
+    setting.image.paste(game.image, (0,0))
+    
+    #every broken window display
+    for window in windows.list:
+        setting.image.paste(window.image, (window.curr_x,window.curr_y), window.image)
+    #every rock display
+    for rock in rocks.list:
+        setting.image.paste(rock.image, (rock.curr_x,rock.curr_y), rock.image)
+    
+    setting.image.paste(ras.image, (ras.curr_x,ras.curr_y),ras.image)
+    setting.image.paste(berry.image, (berry.curr_x, berry.curr_y),berry.image)
+    setting.disp.image(setting.image)
