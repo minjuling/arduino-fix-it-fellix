@@ -9,16 +9,21 @@ class Window():
         self.wd4 = Image.open('Img/window4.png')
         self.wd5 = Image.open('Img/window5.png')
 
+        #For correspoding image in the self.state
         self.check = 0
+        #Image list
         self.state = [self.wd1, self.wd2, self.wd3, self.wd4, self.wd5]
 
+        #Window position
         self.curr_x = x
         self.curr_y = y
 
-        self.image = self.wd1
+        #Image in the self.state correspoding self.check idx
+        self.image = self.state[self.check]
 
 
     def clean(self):
         self.check += 1
         if self.check<5:
+            #change corresponding image
             self.image = self.state[self.check]

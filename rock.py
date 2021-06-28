@@ -10,13 +10,15 @@ class Rock():
         self.width = 20
         self.height = 20
 
-    def moving(self):
-        delete = 0
+    #move curr_y+1 and when reach floor, return 1
+    def moving(self, stagenum):
+        delete = 1
         if self.curr_y<240:
-            self.curr_y += 1
-            delete = 1
+            self.curr_y += stagenum
+            delete = 0
         return delete
-            
+    
+    #When strawberry touch rock, return 1
     def check(self, x,y): 
         ch = 0
         if abs((self.curr_x+10)-(x+20))<20 and abs((self.curr_y+self.height)-(y+10))<3:

@@ -16,11 +16,15 @@ class Raspberry():
 
         self.next_x = np.random.randint(10, 150)
     
+    
     def moving(self):
-        if abs(self.curr_x-self.next_x) <= 11:
+        #if raspberry position reach to next position
+        if abs(self.curr_x-self.next_x) <= 6:
+            #randomly set raspberry position
             self.next_x = np.random.randint(10, 150)
+        #else if move raspberry position
         elif self.curr_x>self.next_x:
-            self.curr_x -= 10
+            self.curr_x -= 5
         elif self.curr_x<self.next_x:
-            self.curr_x += 10
+            self.curr_x += 5
         

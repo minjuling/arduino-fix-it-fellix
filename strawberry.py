@@ -13,7 +13,8 @@ class Strawberry():
         self.curr_y = 190
 
         self.image = self.img1
-    
+
+    #change image according to the button
     def up(self):
         if self.curr_y>90:
             self.curr_y -= 10

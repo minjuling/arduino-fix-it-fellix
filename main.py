@@ -7,24 +7,16 @@
 from game import Game
 from setting import Setting
 
-#instance
+#game initialization
 game = Game()
 setting = Setting()
 berry, ras, windows, rocks = game.gameinit()
 
 while True:
 
-    #raspberry moving
     ras.moving()
-
-    #rock moving
-    rocks.rock_moving()
-
-    #rock create every 3 second
     rocks.create_rock(ras.curr_x,ras.curr_y, game.stagecheck)
-    
-    #rock delete if it hit the floor
-    rocks.rock_delete()
+    rocks.manage_rock(game.stagecheck+1)
 
     # up pressed, berry up
     if not setting.button_U.value:  
@@ -47,19 +39,25 @@ while True:
         berry.A()
         windows.window_check(berry.curr_x, berry.curr_y) #window fix check
 
+
     #berry hit rock, game over
     if rocks.rock_check(berry.curr_x,berry.curr_y):
         game.gameover(setting.draw, setting.image, setting.disp)
+
     
-    #if every window fix, next stage
     if len(windows.list) == 0:
+        #set next stage
         game.change_stage(setting.draw, setting.image, setting.disp)
+        #initialize game
         berry, ras, windows, rocks = game.gameinit()
         continue
-    #else if last stage, ending
+
+    #else if last stage, end game
     elif game.stagecheck ==3:
         game.ending(berry, ras, setting.draw, setting.image, setting.disp)
         quit()
+
+
         
     # Display the Image
     setting.image.paste(game.image, (0,0))
