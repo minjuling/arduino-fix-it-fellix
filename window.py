@@ -9,8 +9,7 @@ class Window():
         self.wd4 = Image.open('Img/window4.png')
         self.wd5 = Image.open('Img/window5.png')
 
-        #For correspoding image in the self.state
-        self.check = 0
+        self.statenum = 0
         #Image list
         self.state = [self.wd1, self.wd2, self.wd3, self.wd4, self.wd5]
 
@@ -18,12 +17,12 @@ class Window():
         self.curr_x = x
         self.curr_y = y
 
-        #Image in the self.state correspoding self.check idx
-        self.image = self.state[self.check]
+        #Image in the self.state correspoding self.statenum idx
+        self.image = self.state[self.statenum]
 
 
     def clean(self):
-        self.check += 1
-        if self.check<5:
+        self.statenum += 1
+        if self.statenum<5:
             #change corresponding image
-            self.image = self.state[self.check]
+            self.image = self.state[self.statenum]

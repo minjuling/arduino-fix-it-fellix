@@ -14,9 +14,10 @@ class Rocks():
         #creation time according to stage
         self.createtime = [5, 3, 2]
 
-
-    #create rock
-    def create_rock(self,x, y, stagenum):
+    def manage_rock(self,x, y, stagenum):
+        """
+        create, move, delete rock
+        """
         self.curr_t = time.time()
 
         #if stagenum is small than ending stage num and after a certain amount of time,
@@ -27,12 +28,16 @@ class Rocks():
             self.list.append(rock)
 
             self.prev_t = time.time()
-    
-    #move rock and rock object is reach floor, del this object
-    def manage_rock(self,stagenum):
-        self.list = [rock for rock in self.list if rock.moving(stagenum) == 0]
+        
+        #move rock and rock object is reach floor, del this object
+        self.list = [rock for rock in self.list if rock.moving(stagenum+1) == 0]
+        
 
-    #rock object is reach strawberry, return 1 for quit game
+    
     def rock_check(self, x, y):
+        """
+        rock object is reach strawberry, 
+        return 1 for quit game
+        """
         for rock in self.list:
             return rock.check(x,y)
